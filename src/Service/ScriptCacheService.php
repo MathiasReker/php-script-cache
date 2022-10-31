@@ -17,14 +17,8 @@ use MatthiasMullie\Minify\JS as MinifyJs;
 
 class ScriptCacheService implements ScriptCacheServiceInterface
 {
-    /**
-     * @var int
-     */
     private const CACHE_KEY_OFFSET = 8;
 
-    /**
-     * @var int
-     */
     private const CACHE_VERSION_OFFSET = 8;
 
     private ScriptCache $scriptCache;
