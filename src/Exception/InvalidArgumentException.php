@@ -10,12 +10,12 @@ declare(strict_types=1);
 
 namespace MathiasReker\PhpScriptCache\Exception;
 
-use RuntimeException;
+use InvalidArgumentException;
 
 /**
  * Thrown to indicate that a method has been passed an illegal or
  * inappropriate argument.
  */
-final class InvalidArgumentException extends RuntimeException
+final class InvalidArgumentException extends InvalidArgumentException
 {
 }
