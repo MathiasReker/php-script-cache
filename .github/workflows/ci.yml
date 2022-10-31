@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - develop
+
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  run:
+    runs-on: ${{ matrix.operating-system }}
+    strategy:
+      matrix:
+        operating-system: [ 'ubuntu-latest', 'macos-latest', 'windows-latest' ]
+        php-versions: [ '7.4', '8.0', '8.1' ]
+    name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.operating-system }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+          extensions: mbstring
+          coverage: xdebug
+
+      - name: Check PHP Version
+        run: php -v
+
+      - name: Composer install
+        run: composer install --optimize-autoloader --prefer-dist
+
+      # - name: Run PHPUnit tests
+      #   run: composer test
+
+      # - name: Run PHP CS fixer
+      #   run: composer cs-check
+
+      - name: Run phpstan
+        run: composer phpstan
+
+      - name: Run ergebnis/composer-normalize
+        run: composer normalize --dry-run --no-check-lock

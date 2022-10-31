@@ -1,0 +1,48 @@
+{
+  "name": "mathiasreker/php-script-cache",
+  "description": "php-script-cache is a PHP library for caching external scripts locally.",
+  "license": "MIT",
+  "type": "library",
+  "keywords": [],
+  "authors": [
+    {
+      "name": "Mathias Reker",
+      "role": "Developer"
+    }
+  ],
+  "homepage": "https://github.com/mathiasreker/php-script-cache",
+  "require": {
+    "php": ">=7.4",
+    "ext-json": "*",
+    "matthiasmullie/minify": "^1.3"
+  },
+  "require-dev": {
+    "ergebnis/composer-normalize": "^2.28",
+    "friendsofphp/php-cs-fixer": "^3.11",
+    "phpstan/phpstan": "^1.8",
+    "phpunit/phpunit": "^9.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "MathiasReker\\PhpScriptCache\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "MathiasReker\\PhpScriptCache\\Tests\\": "tests/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "ergebnis/composer-normalize": true,
+      "phpunit/phpunit": true
+    },
+    "sort-packages": true
+  },
+  "scripts": {
+    "cs-check": "./vendor/bin/php-cs-fixer fix . --dry-run --diff",
+    "cs-fix": "./vendor/bin/php-cs-fixer fix .",
+    "phpstan": "./vendor/bin/phpstan analyse src/ --level=5",
+    "test": "./vendor/bin/phpunit --bootstrap vendor/autoload.php --colors=always tests/"
+  }
+}
