@@ -116,11 +116,9 @@ class ScriptCacheService implements ScriptCacheServiceInterface
 
     private function getExtension(): string
     {
-        if ($this->scriptCache->isMinify()) {
-            return '.min.js';
-        }
-
-        return '.js';
+        return $this->scriptCache->isMinify()
+            ? '.min.js'
+            : '.js';
     }
 
     /**
