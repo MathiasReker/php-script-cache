@@ -184,27 +184,28 @@ class ScriptCacheService implements ScriptCacheServiceInterface
     }
 
     /**
-     * @param string[] $files
+     * @param string[] $scripts
      *
      * @throws JsonException
      */
-    private function cacheMetadata(array $files): void
+    private function cacheMetadata(array $scripts): void
     {
-        $meta = [];
+        $metaData = [];
 
-        foreach ($files as $src) {
-            $meta += [$src => mb_substr(sha1_file(sprintf(
+        foreach ($scripts as $scriptName) {
+            $scriptPath = sprintf(
                 '%s/%s%s',
                 $this->scriptCache->getOutputPath(),
-                $src,
+                $scriptName,
                 $this->getExtension()
-            )), 0, self::CACHE_VERSION_OFFSET)];
+            );
+            $metaData[$scriptName] = mb_substr(sha1_file($scriptPath), 0, self::CACHE_VERSION_OFFSET);
         }
 
-        $file = sprintf('%s/%s.json', $this->scriptCache->getOutputPath(), 'meta');
+        $metaFilePath = sprintf('%s/%s.json', $this->scriptCache->getOutputPath(), 'meta');
 
-        $fp = fopen($file, 'a+');
-        fwrite($fp, json_encode($meta, \JSON_THROW_ON_ERROR));
+        $fp = fopen($metaFilePath, 'a+');
+        fwrite($fp, json_encode($metaData, \JSON_THROW_ON_ERROR));
         fclose($fp);
     }
 }
