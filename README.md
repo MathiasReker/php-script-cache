@@ -36,7 +36,7 @@ composer require mathiasreker/php-script-cache
 
 ### Examples
 
-Set up a cronjob to run the build.
+Set up a cronjob to build the assets.
 
 ```php
 <?php
@@ -49,15 +49,18 @@ require __DIR__ . '/vendor/autoload.php';
     ->setPath(__DIR__ . '/assets/js')
     ->doMinify()
     ->add([
-        'src' => ['https://example.com/script.js'], // multiple items will get bundled
+        'src' => [
+            'https://example1.com/script.js',
+            'https://example2.com/script.js'
+        ], // multiple scripts will get bundled
     ])
     ->add([
-        'src' => ['https://example.com/script.js'],
+        'src' => ['https://example3.com/script.js'],
     ])
     ->build();
 ```
 
-Place this code inside your PHP. You can add attributes to the scripts.
+Place this code where you want to output the script tags. You can add attributes to the scripts.
 
 ```php
 <?php
@@ -66,47 +69,58 @@ use MathiasReker\PhpScriptCache\ScriptCache;
 
 require __DIR__ . '/vendor/autoload.php';
 
-(new ScriptCache())
+$result = (new ScriptCache())
     ->setPath(__DIR__ . '/assets/js')
-    ->doMinify()
     ->add([
-        'src' => ['https://example.com/script.js'],
+        'src' => [
+            'https://example1.com/script.js',
+            'https://example2.com/script.js'
+        ],
     ])
     ->add([
-        'src' => ['https://example.com/script.js'],
+        'src' => ['https://example3.com/script.js'],
         'id' => 'test',
         'defer' => '',
     ])
     ->fetch();
 
+ // Result: <script src="/assets/js/c5a80e42.js?v=ec25a610"></script><script src="/assets/js/c5a80e42.js?v=539e4fd1" id="test" defer></script>
 ```
 
 ### Documentation
+
+Instantiate the object.
 
 ```php
 $result = new ScriptCache();
 ```
 
-`setPath` sets the path of the output folder for built files:
+```php
+$result->setPath(__DIR__ . '/assets/js');
+```
+
+`setPath` sets the path of the output folder for built files.
 
 ```php
 $result->doMinify();
 ```
 
-`doMinify` minifies the content and add `.min.js` as the extension instead for `.js`:
+`doMinify` minifies the content.
 
 ```php
 $result->add(['src' => ['https://example.com/script.js']]);
 ```
 
 `add` sets the attributes of the script. The `src` can be an array of several scripts.
-All the scripts in the collection will get bundled. You can use any attributes
+All the scripts in the collection will get bundled. You can use any attributes.
+You do not need to set attributes when you build the cache.
 
 ```php
 $result->build();
 ```
 
 `build` builds the assets.
+
 ```php
 $result->fetch();
 ```
@@ -135,12 +149,6 @@ Next, access the container:
 
 ```bash
 docker exec -it php-script-cache bash
-```
-
-Install dependencies:
-
-```bash
-composer install
 ```
 
 #### Tools

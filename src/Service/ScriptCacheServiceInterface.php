@@ -13,7 +13,7 @@ namespace MathiasReker\PhpScriptCache\Service;
 interface ScriptCacheServiceInterface
 {
     /**
-     * @param string[] $script
+     * @param string[][] $script
      */
     public function add(array $script): self;
 

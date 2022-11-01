@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace MathiasReker\PhpScriptCache\Service;
 
-use JsonException;
 use MathiasReker\PhpScriptCache\Exception\InvalidArgumentException;
 use MathiasReker\PhpScriptCache\Model\ScriptCache;
 use MatthiasMullie\Minify\JS as MinifyJs;
@@ -35,7 +34,7 @@ class ScriptCacheService implements ScriptCacheServiceInterface
     }
 
     /**
-     * @param string[] $script
+     * @param string[][] $script
      */
     public function add(array $script): self
     {
@@ -80,15 +79,14 @@ class ScriptCacheService implements ScriptCacheServiceInterface
             }
 
             $bundle['src'] = sprintf(
-                '%s/%s%s?v=%s',
+                '%s/%s.js?v=%s',
                 $this->scriptCache->getOutputPath(),
                 $src,
-                $this->getExtension(),
                 $this->getMetaData()[$src]
             );
 
             array_walk($bundle, static function (&$value, $attribute): void {
-                $value = sprintf('%s="%s"', $attribute, $value);
+                $value = $attribute . ('' === $value ? $value : '="' . $value . '"');
             });
 
             $result .= sprintf('<script %s></script>', implode(' ', $bundle));
@@ -100,7 +98,7 @@ class ScriptCacheService implements ScriptCacheServiceInterface
     /**
      * @return string[]
      *
-     * @throws JsonException
+     * @throws \JsonException
      */
     private function getMetaData(): array
     {
@@ -114,20 +112,13 @@ class ScriptCacheService implements ScriptCacheServiceInterface
         );
     }
 
-    private function getExtension(): string
-    {
-        return $this->scriptCache->isMinify()
-            ? '.min.js'
-            : '.js';
-    }
-
     /**
-     * @throws JsonException
+     * @throws \JsonException
      */
     public function build(): void
     {
         if (!file_exists($this->scriptCache->getOutputPath())) {
-            mkdir($this->scriptCache->getOutputPath(), 0775, true);
+            mkdir($this->scriptCache->getOutputPath(), 0755, true);
         }
 
         array_map('unlink', glob(sprintf('%s/*.*', $this->scriptCache->getOutputPath())));
@@ -153,10 +144,9 @@ class ScriptCacheService implements ScriptCacheServiceInterface
 
         foreach ($scripts as $script => $attributes) {
             $scriptPath = sprintf(
-                '%s/%s%s',
+                '%s/%s.js',
                 $this->scriptCache->getOutputPath(),
-                $script,
-                $this->getExtension()
+                $script
             );
 
             $fp = fopen($scriptPath, 'a+');
@@ -178,29 +168,32 @@ class ScriptCacheService implements ScriptCacheServiceInterface
             fclose($fp);
         }
 
-        $this->cacheMetadata($metadata);
+        $this->saveMetadata($metadata);
     }
 
     /**
-     * @param string[] $scripts
+     * @param string[] $scriptNames
      *
-     * @throws JsonException
+     * @throws \JsonException
      */
-    private function cacheMetadata(array $scripts): void
+    private function saveMetadata(array $scriptNames): void
     {
         $metaData = [];
 
-        foreach ($scripts as $scriptName) {
+        foreach ($scriptNames as $scriptName) {
             $scriptPath = sprintf(
-                '%s/%s%s',
+                '%s/%s.js',
                 $this->scriptCache->getOutputPath(),
-                $scriptName,
-                $this->getExtension()
+                $scriptName
             );
             $metaData[$scriptName] = mb_substr(sha1_file($scriptPath), 0, self::CACHE_VERSION_OFFSET);
         }
 
         $metaFilePath = sprintf('%s/%s.json', $this->scriptCache->getOutputPath(), 'meta');
+
+        if (!file_exists(\dirname($metaFilePath))) {
+            mkdir(\dirname($metaFilePath), 0755, true);
+        }
 
         $fp = fopen($metaFilePath, 'a+');
         fwrite($fp, json_encode($metaData, \JSON_THROW_ON_ERROR));

@@ -37,8 +37,8 @@ jobs:
       # - name: Run PHPUnit tests
       #   run: composer test
 
-      # - name: Run PHP CS fixer
-      #   run: composer cs-check
+      - name: Run PHP CS fixer
+        run: composer cs-check
 
       - name: Run phpstan
         run: composer phpstan
